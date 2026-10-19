@@ -40,7 +40,7 @@ for file_1 in $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631; do
     out_dir="$OUT/trimmed_reads/$(basename "$prefix")"
     name=$(basename "$prefix")
     mkdir -p "$out_dir"
-    trimmomatic PE -threads 12 "$file_1" "$file_2" $out_dir/$name.1P.fastq.gz out_dir/$name.1U.fastq.gz $out_dir/$name.2P.fastq.gz $out_dir/$name.2U.fastq.gz ILLUMINACLIP:TruSeq3-PE-2-GGGGG.fa:2:30:10:2:True LEADING:3 TRAILING:3 MINLEN:36
+    trimmomatic PE -threads 12 "$file_1" "$file_2" $out_dir/$name.1P.fastq.gz out_dir/$name.1U.fastq.gz $out_dir/$name.2P.fastq.gz $out_dir/$name.2U.fastq.gz ILLUMINACLIP:/apps/eb/Trimmomatic/0.39-Java-17/adapters/TruSeq3-PE-2.fa:2:30:10:2:True LEADING:3 TRAILING:3 MINLEN:36
     gunzip -k $out_dir/*.gz
     hisat2 -p 12 --dta -x $OUT/Tifrunner_idx -1 "$out_dir/$name.1P.fastq" -2 "$out_dir/$name.2P.fastq" -S $out_dir/$name.sam
     samtools view -b -@ 12 $out_dir/$name.sam -o $out_dir/$name.bam
