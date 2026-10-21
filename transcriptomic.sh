@@ -34,7 +34,7 @@ ml SAMtools/1.23.1-GCC-13.3.0
 mkdir -p $OUT/trimmed_reads
 mkdir -p $OUT/hisat2
 
-for file_1 in $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*fastq.gz; do
+for file_1 in $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*_R1_001.fastq.gz; do
     prefix="${file_1%_R1_001.fastq.gz}"
     file_2="${prefix}_R2_001.fastq.gz"
     out_dir="$OUT/trimmed_reads/$(basename "$prefix")"
