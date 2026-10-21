@@ -20,15 +20,15 @@ ml StringTie/3.0.0-GCC-13.3.0
 ml gffread/0.12.7-GCCcore-12.3.0
 ml SAMtools/1.23.1-GCC-13.3.0
 
-curl -s $REF | gunzip -c > $OUT/Tifrunner.fa
-hisat2-build -p 12 $OUT/Tifrunner.fa $OUT/Tifrunner_idx
-curl -s $GFF | gunzip -c > $OUT/Tifrunner.gff
-gffread $OUT/Tifrunner.gff -T -o $OUT/Tifrunner.gtf
+#curl -s $REF | gunzip -c > $OUT/Tifrunner.fa
+#hisat2-build -p 12 $OUT/Tifrunner.fa $OUT/Tifrunner_idx
+#curl -s $GFF | gunzip -c > $OUT/Tifrunner.gff
+#gffread $OUT/Tifrunner.gff -T -o $OUT/Tifrunner.gtf
 
-mkdir -p $OUT/unzipped
-gunzip -k $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*.fastq.gz
-mv $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*.fastq $OUT/unzipped
-mkdir -p $OUT/fastqc
+#mkdir -p $OUT/unzipped
+#gunzip -k $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*.fastq.gz
+#mv $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*.fastq $OUT/unzipped
+#mkdir -p $OUT/fastqc
 #fastqc $OUT/unzipped/*.fastq -o $OUT/fastqc
 
 mkdir -p $OUT/trimmed_reads
@@ -44,6 +44,6 @@ for file_1 in $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*fastq.gz; do
     gunzip -k $out_dir/*.gz
     hisat2 -p 12 --dta -x $OUT/Tifrunner_idx -1 "$out_dir/$name.1P.fastq" -2 "$out_dir/$name.2P.fastq" -S $out_dir/$name.sam
     samtools view -b -@ 12 $out_dir/$name.sam -o $out_dir/$name.bam
-    samtools sort -@ 12 $out_dir/$name.bam $out_dir/$name.sorted.bam
+    samtools sort -@ 12 $out_dir/$name.bam -o $out_dir/$name.sorted.bam
     stringtie -p 12 -G $OUT/Tifrunner.gtf -o $out_dir/$name.gtf -l $name $out_dir/$name.sorted.bam
 done
