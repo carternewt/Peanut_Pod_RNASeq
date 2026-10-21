@@ -23,6 +23,8 @@ ml SAMtools/1.23.1-GCC-13.3.0
 #curl -s $REF | gunzip -c > $OUT/Tifrunner.fa
 #hisat2-build -p 12 $OUT/Tifrunner.fa $OUT/Tifrunner_idx
 #curl -s $GFF | gunzip -c > $OUT/Tifrunner.gff
+#awk -F'\t' '!/^#/ && $7=="?"' Tifrunner.gff | cut -f3,9 | cut -c1-120
+#grep -v 'gene=rps12' Tifrunner.gff > Tifrunner.fixed.gff #remove this gene annotation due to presence of '?' 
 #gffread $OUT/Tifrunner.gff -T -o $OUT/Tifrunner.gtf
 
 #mkdir -p $OUT/unzipped
