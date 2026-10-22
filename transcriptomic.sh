@@ -47,5 +47,14 @@ for file_1 in $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*_R1_001.fastq.gz; do
     hisat2 -p 12 --dta -x $OUT/Tifrunner_idx -1 "$out_dir/$name.1P.fastq" -2 "$out_dir/$name.2P.fastq" -S $out_dir/$name.sam
     samtools view -b -@ 12 $out_dir/$name.sam -o $out_dir/$name.bam
     samtools sort -@ 12 $out_dir/$name.bam -o $out_dir/$name.sorted.bam
-    stringtie -p 12 -G $OUT/Tifrunner.gtf -o $out_dir/$name.gtf -l $name $out_dir/$name.sorted.bam
+    stringtie -e -B -p 12 --rf -G $OUT/Tifrunner.gtf -o $out_dir/$name.gtf -l $name $out_dir/$name.sorted.bam
+    rmdir $out_dir/tmp*
 done
+
+for bam in $OUT/trimmed_reads/*/*.sorted.bam; do
+    echo "$bam"
+    samtools flagstat -@ 12 "$bam" | grep -E "primary mapped|properly paired"
+done
+
+prepDE.py3 -i $OUT/trimmed_reads -l 150 \
+    -g $OUT/gene_count_matrix.csv -t $OUT/transcript_count_matrix.csv
