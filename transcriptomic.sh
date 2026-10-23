@@ -20,21 +20,20 @@ ml StringTie/3.0.0-GCC-13.3.0
 ml gffread/0.12.7-GCCcore-12.3.0
 ml SAMtools/1.23.1-GCC-13.3.0
 
-#curl -s $REF | gunzip -c > $OUT/Tifrunner.fa
-#hisat2-build -p 12 $OUT/Tifrunner.fa $OUT/Tifrunner_idx
-#curl -s $GFF | gunzip -c > $OUT/Tifrunner.gff
-#awk -F'\t' '!/^#/ && $7=="?"' Tifrunner.gff | cut -f3,9 | cut -c1-120
-#grep -v 'gene=rps12' Tifrunner.gff > Tifrunner.fixed.gff #remove this gene annotation due to presence of '?' 
-#gffread $OUT/Tifrunner.gff -T -o $OUT/Tifrunner.gtf
+curl -s $REF | gunzip -c > $OUT/Tifrunner.fa
+hisat2-build -p 12 $OUT/Tifrunner.fa $OUT/Tifrunner_idx
+curl -s $GFF | gunzip -c > $OUT/Tifrunner.gff
+awk -F'\t' '!/^#/ && $7=="?"' Tifrunner.gff | cut -f3,9 | cut -c1-120
+grep -v 'gene=rps12' Tifrunner.gff > Tifrunner.fixed.gff #remove this gene annotation due to presence of '?' 
+gffread $OUT/Tifrunner.fixed.gff -T -o $OUT/Tifrunner.gtf
 
-#mkdir -p $OUT/unzipped
-#gunzip -k $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*.fastq.gz
-#mv $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*.fastq $OUT/unzipped
-#mkdir -p $OUT/fastqc
-#fastqc $OUT/unzipped/*.fastq -o $OUT/fastqc
+mkdir -p $OUT/unzipped
+gunzip -k $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*.fastq.gz
+mv $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*.fastq $OUT/unzipped
+mkdir -p $OUT/fastqc/pre_trim
+fastqc $OUT/unzipped/*.fastq -o $OUT/fastqc/pre_trim
 
 mkdir -p $OUT/trimmed_reads
-mkdir -p $OUT/hisat2
 
 for file_1 in $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*_R1_001.fastq.gz; do
     prefix="${file_1%_R1_001.fastq.gz}"
@@ -50,6 +49,9 @@ for file_1 in $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*_R1_001.fastq.gz; do
     stringtie -e -B -p 12 --rf -G $OUT/Tifrunner.gtf -o $out_dir/$name.gtf -l $name $out_dir/$name.sorted.bam
     rmdir $out_dir/tmp*
 done
+
+mkdir -p $OUT/fastqc/post_trim
+fastqc $OUT/trimmed_reads/*/*P.fastq -o $OUT/fastqc/post_trim
 
 for bam in $OUT/trimmed_reads/*/*.sorted.bam; do
     echo "$bam"
