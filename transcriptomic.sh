@@ -22,6 +22,7 @@ ml SAMtools/1.23.1-GCC-13.3.0
 
 curl -s $REF | gunzip -c > $OUT/Tifrunner.fa
 hisat2-build -p 12 $OUT/Tifrunner.fa $OUT/Tifrunner_idx
+samtools faidx -@ 12 $OUT/Tifrunner.fa -o $OUT/Tifrunner.fasta.fai
 curl -s $GFF | gunzip -c > $OUT/Tifrunner.gff
 awk -F'\t' '!/^#/ && $7=="?"' Tifrunner.gff | cut -f3,9 | cut -c1-120
 grep -v 'gene=rps12' Tifrunner.gff > Tifrunner.fixed.gff #remove this gene annotation due to presence of '?' 
@@ -47,6 +48,7 @@ for file_1 in $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*_R1_001.fastq.gz; do
     samtools view -b -@ 12 $out_dir/$name.sam -o $out_dir/$name.bam
     samtools sort -@ 12 $out_dir/$name.bam -o $out_dir/$name.sorted.bam
     stringtie -e -B -p 12 --rf -G $OUT/Tifrunner.gtf -o $out_dir/$name.gtf -l $name $out_dir/$name.sorted.bam
+    samtools index -@ 12 $out_dir/$name.sorted.bam -o $out_dir/$name.sorted.bai
     rmdir $out_dir/tmp*
 done
 
