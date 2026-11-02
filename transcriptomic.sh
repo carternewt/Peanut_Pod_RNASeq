@@ -40,7 +40,7 @@ mkdir -p $OUT/fastqc/pre_trim
 mkdir -p $OUT/trimmed_reads
 
 mkdir $out/eggnog
-emapper.py -i $OUT/Tifrunner.faa --itype proteins -o $OUT/eggnog --data_dir /db/eggnog-mapper/2.1.12-foss-2023a-version_5.0 --cpu 12 --report_dropped
+emapper.py -i $OUT/Tifrunner.faa --itype proteins -o $OUT/eggnog --data_dir /db/eggnog-mapper/2.1.12-foss-2023a-version_5.0 --cpu 12 
 
 #for file_1 in $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*_R1_001.fastq.gz; do
 #    prefix="${file_1%_R1_001.fastq.gz}"
