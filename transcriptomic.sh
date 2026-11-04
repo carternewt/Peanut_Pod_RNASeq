@@ -21,6 +21,7 @@ ml StringTie/3.0.0-GCC-13.3.0
 ml gffread/0.12.7-GCCcore-12.3.0
 ml SAMtools/1.23.1-GCC-13.3.0
 ml eggnog-mapper/2.1.12-foss-2023a
+ml InterProScan/5.76-107.0-GCC-13.3.0
 
 #curl -s $REF | gunzip -c > $OUT/Tifrunner.fa
 #hisat2-build -p 12 $OUT/Tifrunner.fa $OUT/Tifrunner_idx
@@ -39,8 +40,11 @@ ml eggnog-mapper/2.1.12-foss-2023a
 
 #mkdir -p $OUT/trimmed_reads
 
-mkdir $OUT/eggnog
-emapper.py -i $OUT/Tifrunner.faa --itype proteins -o Tifrunner_GO_KEGG --output_dir $OUT/eggnog --data_dir /db/eggnog-mapper/2.1.12-foss-2023a-version_5.0 --cpu 12 --excel --override --go_evidence all 
+#mkdir $OUT/eggnog
+#emapper.py -i $OUT/Tifrunner.faa --itype proteins -o Tifrunner_GO_KEGG --output_dir $OUT/eggnog --data_dir /db/eggnog-mapper/2.1.12-foss-2023a-version_5.0 --cpu 12 --excel --override --go_evidence all 
+
+mkdir $OUT/InterProScan
+interproscan.sh -i $OUT/Tifrunner.faa -f tsv -goterms -cpu 12 -o $OUT/InterProScan/InterProScan_Ahypogaea.tsv
 
 #for file_1 in $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*_R1_001.fastq.gz; do
 #    prefix="${file_1%_R1_001.fastq.gz}"
