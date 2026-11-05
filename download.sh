@@ -2,7 +2,7 @@
 #SBATCH --partition=batch
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=12
-#SBATCH --mem=24G
+#SBATCH --mem=12G
 #SBATCH --time=1-0:00:00
 #SBATCH --mail-user=carter.newton@uga.edu
 #SBATCH --mail-type=START,END,FAIL
