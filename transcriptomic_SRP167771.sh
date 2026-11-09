@@ -34,7 +34,7 @@ mkdir -p $OUT2/trimmed_reads
 for file_1 in $OUT2/fastq/*_1.fastq.gz; do
     prefix="${file_1%_1.fastq.gz}"
     file_2="${prefix}_2.fastq.gz"
-    out_dir="$OUT/trimmed_reads/$(basename "$prefix")"
+    out_dir="$OUT2/trimmed_reads/$(basename "$prefix")"
     name=$(basename "$prefix")
     mkdir -p "$out_dir"
     trimmomatic PE -threads 12 "$file_1" "$file_2" $out_dir/$name.1P.fastq.gz $out_dir/$name.1U.fastq.gz $out_dir/$name.2P.fastq.gz $out_dir/$name.2U.fastq.gz ILLUMINACLIP:/apps/eb/Trimmomatic/0.39-Java-17/adapters/TruSeq3-PE-2.fa:2:30:10:2:True LEADING:3 TRAILING:3 MINLEN:36
@@ -44,7 +44,6 @@ for file_1 in $OUT2/fastq/*_1.fastq.gz; do
     samtools sort -@ 12 $out_dir/$name.bam -o $out_dir/$name.sorted.bam
     stringtie -e -B -p 12 --rf -G $OUT/Tifrunner.gtf -o $out_dir/$name.gtf -l $name $out_dir/$name.sorted.bam
     samtools index -@ 12 $out_dir/$name.sorted.bam -o $out_dir/$name.sorted.bai
-    rmdir $out_dir/tmp*
 done
 
 mkdir -p $OUT2/fastqc/post_trim
