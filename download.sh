@@ -11,8 +11,8 @@
 
 OUT='/work/lylab/cjn40747/10DAP_RNA'
 
-#cd $OUT/Other_RNA_Seq/SRP167771/fastq
-#sed 's#^#ftp://#' $OUT/Other_RNA_Seq/SRP167771/urls_SRP167771.txt | xargs -n 1 -P 12 wget -c -nv 
+cd $OUT/Other_RNA_Seq/SRP167771/fastq
+sed 's#^#ftp://#' $OUT/Other_RNA_Seq/SRP167771/urls_SRP167771.txt | xargs -n 1 -P 12 wget -c -nv 
 
-cd $OUT/Other_RNA_Seq/PRJNA470988/fastq
-sed 's#^#ftp://#' $OUT/Other_RNA_Seq/PRJNA470988/urls.txt | xargs -n 1 -P 12 wget -c -nv
+#cd $OUT/Other_RNA_Seq/PRJNA470988/fastq
+#sed 's#^#ftp://#' $OUT/Other_RNA_Seq/PRJNA470988/urls.txt | xargs -n 1 -P 12 wget -c -nv
