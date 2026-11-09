@@ -48,7 +48,7 @@ for file_1 in $OUT2/fastq/*_1.fastq.gz; do
 done
 
 mkdir -p $OUT2/fastqc/post_trim
-fastqc $OUT2/trimmed_reads/*/*P.fastq -o $OUT/fastqc/post_trim
+fastqc $OUT2/trimmed_reads/*/*P.fastq -o $OUT2/fastqc/post_trim
 multiqc $OUT2/fastqc/post_trim --outdir $OUT2/fastqc/post_trim
 
 for bam in $OUT2/trimmed_reads/*/*.sorted.bam; do
@@ -56,4 +56,4 @@ for bam in $OUT2/trimmed_reads/*/*.sorted.bam; do
     samtools flagstat -@ 12 "$bam" | grep -E "primary mapped|properly paired"
 done
 
-prepDE.py3 -i $OUT/trimmed_reads -l 150 -g $OUT2/gene_count_matrix.csv -t $OUT2/transcript_count_matrix.csv
+prepDE.py3 -i $OUT2/trimmed_reads -l 150 -g $OUT2/gene_count_matrix.csv -t $OUT2/transcript_count_matrix.csv
