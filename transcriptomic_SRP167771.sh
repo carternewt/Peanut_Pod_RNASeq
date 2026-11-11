@@ -25,10 +25,10 @@ ml eggnog-mapper/2.1.12-foss-2023a
 ml InterProScan/5.76-107.0-GCC-13.3.0
 ml MultiQC/1.28-foss-2024a
 
-gunzip -k $OUT2/fastq/*.fastq.gz
-mkdir -p $OUT2/fastqc/pre_trim 
-fastqc $OUT2/fastq/*.fastq -o $OUT2/fastqc/pre_trim
-multiqc $OUT2/fastqc/pre_trim --outdir $OUT2/fastqc/pre_trim
+#gunzip -k $OUT2/fastq/*.fastq.gz
+#mkdir -p $OUT2/fastqc/pre_trim 
+#fastqc $OUT2/fastq/*.fastq -o $OUT2/fastqc/pre_trim
+#multiqc $OUT2/fastqc/pre_trim --outdir $OUT2/fastqc/pre_trim
 
 mkdir -p $OUT2/trimmed_reads
 for file_1 in $OUT2/fastq/*_1.fastq.gz; do
@@ -42,7 +42,7 @@ for file_1 in $OUT2/fastq/*_1.fastq.gz; do
     hisat2 -p 12 --dta -x $OUT/Tifrunner_idx -1 "$out_dir/$name.1P.fastq" -2 "$out_dir/$name.2P.fastq" -S $out_dir/$name.sam
     samtools view -b -@ 12 $out_dir/$name.sam -o $out_dir/$name.bam
     samtools sort -@ 12 $out_dir/$name.bam -o $out_dir/$name.sorted.bam
-    stringtie -e -B -p 12 --rf -G $OUT/Tifrunner.gtf -o $out_dir/$name.gtf -l $name $out_dir/$name.sorted.bam
+    stringtie -e -B -p 12 -G $OUT/Tifrunner.gtf -o $out_dir/$name.gtf -l $name $out_dir/$name.sorted.bam
     samtools index -@ 12 $out_dir/$name.sorted.bam -o $out_dir/$name.sorted.bai
 done
 
