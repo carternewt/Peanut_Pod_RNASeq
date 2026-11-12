@@ -24,6 +24,7 @@ ml SAMtools/1.23.1-GCC-13.3.0
 ml eggnog-mapper/2.1.12-foss-2023a
 ml InterProScan/5.76-107.0-GCC-13.3.0
 ml MultiQC/1.28-foss-2024a
+ml RSeQC/5.0.4-foss-2023a
 
 #gunzip -k $OUT2/fastq/*.fastq.gz
 #mkdir -p $OUT2/fastqc/pre_trim 
@@ -37,23 +38,22 @@ for file_1 in $OUT2/fastq/*_1.fastq.gz; do
     out_dir="$OUT2/trimmed_reads/$(basename "$prefix")"
     name=$(basename "$prefix")
     mkdir -p "$out_dir"
-    trimmomatic PE -threads 12 "$file_1" "$file_2" $out_dir/$name.1P.fastq.gz $out_dir/$name.1U.fastq.gz $out_dir/$name.2P.fastq.gz $out_dir/$name.2U.fastq.gz ILLUMINACLIP:/apps/eb/Trimmomatic/0.39-Java-17/adapters/TruSeq3-PE-2.fa:2:30:10:2:True LEADING:3 TRAILING:3 MINLEN:36
+    trimmomatic PE -threads 12 "$file_1" "$file_2" $out_dir/$name.1P.fastq.gz $out_dir/$name.1U.fastq.gz $out_dir/$name.2P.fastq.gz $out_dir/$name.2U.fastq.gz ILLUMINACLIP:/apps/eb/Trimmomatic/0.39-Java-17/adapters/TruSeq3-PE-2.fa:2:30:10:2:True LEADING:3 TRAILING:3 MINLEN:36 2> $out_dir/$name.trimmomatic.log
     gunzip -k $out_dir/*.gz
-    hisat2 -p 12 --dta -x $OUT/Tifrunner_idx -1 "$out_dir/$name.1P.fastq" -2 "$out_dir/$name.2P.fastq" -S $out_dir/$name.sam
+    hisat2 -p 12 --dta -x $OUT/Tifrunner_idx -1 "$out_dir/$name.1P.fastq" -2 "$out_dir/$name.2P.fastq" -S $out_dir/$name.sam 2> $out_dir/$name.hisat2.log
     samtools view -b -@ 12 $out_dir/$name.sam -o $out_dir/$name.bam
     samtools sort -@ 12 $out_dir/$name.bam -o $out_dir/$name.sorted.bam
     stringtie -e -B -p 12 -G $OUT/Tifrunner.gtf -o $out_dir/$name.gtf -l $name $out_dir/$name.sorted.bam
     samtools index -@ 12 $out_dir/$name.sorted.bam -o $out_dir/$name.sorted.bai
-    rmdir $out_dir/tmp*
+    samtools flagstat -@ 12 $out_dir/$name.sorted.bam > $out_dir/$name.flagstat.txt
+    samtools idxstats $out_dir/$name.sorted.bam > $out_dir/$name.idxstats.txt
+    infer_experiment.py -i $out_dir/$name.sorted.bam -r $OUT/Tifrunner.bed > $out_dir/$name.infer_experiment.txt
+    read_distribution.py -i $out_dir/$name.sorted.bam -r $OUT/Tifrunner.bed > $out_dir/$name.read_distribution.txt
 done
 
 mkdir -p $OUT2/fastqc/post_trim
 fastqc $OUT2/trimmed_reads/*/*P.fastq -o $OUT2/fastqc/post_trim
-multiqc $OUT2/fastqc/post_trim --outdir $OUT2/fastqc/post_trim
 
-for bam in $OUT2/trimmed_reads/*/*.sorted.bam; do
-    echo "$bam"
-    samtools flagstat -@ 12 "$bam" | grep -E "primary mapped|properly paired"
-done
+multiqc $OUT2 --outdir $OUT2/multiqc
 
-prepDE.py3 -i $OUT2/trimmed_reads -l 150 -g $OUT2/gene_count_matrix.csv -t $OUT2/transcript_count_matrix.csv
+prepDE.py3 -i $OUT2/trimmed_reads -l 150 -g $OUT2/PRJNA470988_gene_count_matrix.csv -t $OUT2/PRJNA470988_transcript_count_matrix.csv

@@ -22,53 +22,55 @@ ml gffread/0.12.7-GCCcore-12.3.0
 ml SAMtools/1.23.1-GCC-13.3.0
 ml eggnog-mapper/2.1.12-foss-2023a
 ml InterProScan/5.76-107.0-GCC-13.3.0
+ml MultiQC/1.28-foss-2024a
+ml RSeQC/5.0.4-foss-2023a
 
 #curl -s $REF | gunzip -c > $OUT/Tifrunner.fa
 #hisat2-build -p 12 $OUT/Tifrunner.fa $OUT/Tifrunner_idx
 #samtools faidx -@ 12 $OUT/Tifrunner.fa -o $OUT/Tifrunner.fasta.fai
 #curl -s $GFF | gunzip -c > $OUT/Tifrunner.gff
-#awk -F'\t' '!/^#/ && $7=="?"' $OUT/Tifrunner.gff | cut -f3,9 | cut -c1-120
+#wk -F'\t' '!/^#/ && $7=="?"' $OUT/Tifrunner.gff | cut -f3,9 | cut -c1-120
 #grep -v 'gene=rps12' $OUT/Tifrunner.gff > $OUT/Tifrunner.fixed.gff #remove this gene annotation due to presence of '?' 
 #gffread $OUT/Tifrunner.fixed.gff -T -o $OUT/Tifrunner.gtf
 #curl -s $FAA | gunzip -c > $OUT/Tifrunner.faa
 
-#mkdir -p $OUT/unzipped
-#gunzip -k $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*.fastq.gz
-#mv $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*.fastq $OUT/unzipped
-#mkdir -p $OUT/fastqc/pre_trim
-#fastqc $OUT/unzipped/*.fastq -o $OUT/fastqc/pre_trim
+mkdir -p $OUT/unzipped
+gunzip -k $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*.fastq.gz
+mv $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*.fastq $OUT/unzipped
+mkdir -p $OUT/fastqc/pre_trim
+fastqc $OUT/unzipped/*.fastq -o $OUT/fastqc/pre_trim
 
 #mkdir -p $OUT/trimmed_reads
 
 #mkdir $OUT/eggnog
 #emapper.py -i $OUT/Tifrunner.faa --itype proteins -o Tifrunner_GO_KEGG --output_dir $OUT/eggnog --data_dir /db/eggnog-mapper/2.1.12-foss-2023a-version_5.0 --cpu 12 --excel --override --go_evidence all 
 
-mkdir $OUT/InterProScan
-interproscan.sh -i $OUT/Tifrunner.faa -f tsv -goterms -cpu 12 -o $OUT/InterProScan/InterProScan_Ahypogaea.tsv -appl Pfam,PANTHER,SUPERFAMILY,CDD
+#mkdir $OUT/InterProScan
+#interproscan.sh -i $OUT/Tifrunner.faa -f tsv -goterms -cpu 12 -o $OUT/InterProScan/InterProScan_Ahypogaea.tsv -appl Pfam,PANTHER,SUPERFAMILY,CDD
 
-#for file_1 in $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*_R1_001.fastq.gz; do
-#    prefix="${file_1%_R1_001.fastq.gz}"
-#    file_2="${prefix}_R2_001.fastq.gz"
-#    out_dir="$OUT/trimmed_reads/$(basename "$prefix")"
-#    name=$(basename "$prefix")
-#    mkdir -p "$out_dir"
-#   trimmomatic PE -threads 12 "$file_1" "$file_2" $out_dir/$name.1P.fastq.gz $out_dir/$name.1U.fastq.gz $out_dir/$name.2P.fastq.gz $out_dir/$name.2U.fastq.gz ILLUMINACLIP:/apps/eb/Trimmomatic/0.39-Java-17/adapters/TruSeq3-PE-2.fa:2:30:10:2:True LEADING:3 TRAILING:3 MINLEN:36
-#    gunzip -k $out_dir/*.gz
-#    hisat2 -p 12 --dta -x $OUT/Tifrunner_idx -1 "$out_dir/$name.1P.fastq" -2 "$out_dir/$name.2P.fastq" -S $out_dir/$name.sam
-#    samtools view -b -@ 12 $out_dir/$name.sam -o $out_dir/$name.bam
-#    samtools sort -@ 12 $out_dir/$name.bam -o $out_dir/$name.sorted.bam
-#    stringtie -e -B -p 12 --rf -G $OUT/Tifrunner.gtf -o $out_dir/$name.gtf -l $name $out_dir/$name.sorted.bam
-#    samtools index -@ 12 $out_dir/$name.sorted.bam -o $out_dir/$name.sorted.bai
-#    rmdir $out_dir/tmp*
-#done
+for file_1 in $OUT/10DAP_RNA_Seq/9064-0002-10052026_162631/*_R1_001.fastq.gz; do
+    prefix="${file_1%_R1_001.fastq.gz}"
+    file_2="${prefix}_R2_001.fastq.gz"
+    out_dir="$OUT/trimmed_reads/$(basename "$prefix")"
+    name=$(basename "$prefix")
+    mkdir -p "$out_dir"
+   trimmomatic PE -threads 12 "$file_1" "$file_2" $out_dir/$name.1P.fastq.gz $out_dir/$name.1U.fastq.gz $out_dir/$name.2P.fastq.gz $out_dir/$name.2U.fastq.gz ILLUMINACLIP:/apps/eb/Trimmomatic/0.39-Java-17/adapters/TruSeq3-PE-2.fa:2:30:10:2:True LEADING:3 TRAILING:3 MINLEN:36 2> $out_dir/$name.trimmomatic.log
+    gunzip -k $out_dir/*.gz
+    hisat2 -p 12 --dta -x $OUT/Tifrunner_idx -1 "$out_dir/$name.1P.fastq" -2 "$out_dir/$name.2P.fastq" -S $out_dir/$name.sam 2> $out_dir/$name.hisat2.log
+    samtools view -b -@ 12 $out_dir/$name.sam -o $out_dir/$name.bam
+    samtools sort -@ 12 $out_dir/$name.bam -o $out_dir/$name.sorted.bam
+    stringtie -e -B -p 12 --rf -G $OUT/Tifrunner.gtf -o $out_dir/$name.gtf -l $name $out_dir/$name.sorted.bam
+    samtools index -@ 12 $out_dir/$name.sorted.bam -o $out_dir/$name.sorted.bai
+    samtools flagstat -@ 12 $out_dir/$name.sorted.bam > $out_dir/$name.flagstat.txt
+    samtools idxstats $out_dir/$name.sorted.bam > $out_dir/$name.idxstats.txt
+    infer_experiment.py -i $out_dir/$name.sorted.bam -r $OUT/Tifrunner.bed > $out_dir/$name.infer_experiment.txt
+    read_distribution.py -i $out_dir/$name.sorted.bam -r $OUT/Tifrunner.bed > $out_dir/$name.read_distribution.txt
+done
 
-#mkdir -p $OUT/fastqc/post_trim
-#fastqc $OUT/trimmed_reads/*/*P.fastq -o $OUT/fastqc/post_trim
+mkdir -p $OUT/fastqc/post_trim
+fastqc $OUT/trimmed_reads/*/*P.fastq -o $OUT/fastqc/post_trim
 
-#for bam in $OUT/trimmed_reads/*/*.sorted.bam; do
-#    echo "$bam"
-#    samtools flagstat -@ 12 "$bam" | grep -E "primary mapped|properly paired"
-#done
+multiqc $OUT --outdir $OUT/multiqc
 
-#prepDE.py3 -i $OUT/trimmed_reads -l 150 \
-#    -g $OUT/gene_count_matrix.csv -t $OUT/transcript_count_matrix.csv
+prepDE.py3 -i $OUT/trimmed_reads -l 150 \
+    -g $OUT/gene_count_matrix.csv -t $OUT/transcript_count_matrix.csv
